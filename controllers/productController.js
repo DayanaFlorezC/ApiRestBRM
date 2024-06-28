@@ -1,55 +1,112 @@
+const db = require('../config/database')
 const Product = require('../models/product')
 
 const productController = {
 
-    createProduct(req, res){
-        const {name, prize, stock, available, lote} = req.body
+    async createProduct(req, res) {
 
-        const newProduct = new Product({
-            name, 
-            prize,
-            stock, 
-            available,
-            lote, 
-            date: new Date()
+        if(req.user.role !== 'admin') return res.json({success: false, msg: 'No tienes permisos para crear productos'})
+
+        const { nombre, precio, disponibles, lote } = req.body
+
+        const infoProduct = {
+            nombre,
+            precio,
+            disponibles,
+            lote,
+            fecha: new Date()
+        }
+
+        const newProduct = new Product(infoProduct)
+
+        const resp = await newProduct.save()
+
+        res.json({ succes: true, msg: 'Producto creado', product: resp })
+
+    },
+
+    async getProductById(req, res) {
+        const id = req.params.id;
+
+        const { rows } = await db.query('SELECT * FROM productos WHERE id = $1', [id])
+
+        const product = rows[0]
+
+        if (!product) return res.json({ success: false, msg: 'No se encontro este producto' })
+
+        return res.json({
+            success: true,
+            msg: 'ok',
+            producto: product
         })
 
-        newProduct.save()
+    },
 
-        res.json({succes: true, msg: 'okoko'})
+    async getAllProducts(req, res) {
+
+        const { rows } = await db.query('SELECT * from productos')
+
+        res.json({
+            success: true,
+            productos: rows
+        })
+
 
     },
 
-    getProductById(req, res){
-        const id= req.params.id
-        console.log(id)
+    async getProductsBatch(req, res) {
 
-        return res.json({product: {
-            name: 'pan',
-            disponible: 6,
-            precio: 1000,
-            lote: 7,
-            fechaIngreso: '23/09/2029'
-        }})
-
-    },
-
-    getAllProducts(){
-        
-    },
-
-    getProductsBatch(req, res){
         const { limit, page } = req.query
 
+        const query = 'SELECT * FROM productos LIMIT $1 OFFSET $2'
+
+        const values = [limit, (page - 1) * limit]
+
+        const { rows } = await db.query(query, values)
+
+        res.json({
+            success: true,
+            productos: rows,
+            msg: 'ok'
+        })
+    },
+
+    updateProducts(req, res) {
+
+        if(req.user.role !== 'admin') return res.json({success: false, msg: 'No tienes permisos para actualizar productos'})
+
+        const { id } = req.params
+
+        const { nombre, precio, disponibles, lote } = req.body
+
+        const product = new Product({ nombre, precio, disponibles, lote })
+
+        product.updateProduct(id)
+
+        res.json({
+            success: true,
+            msg: 'Producto actualizado'
+        })
 
     },
 
-    updateProducts(){
+    deleteProducts(req, res) {
 
-    },
+        if(req.user.role !== 'admin') return res.json({success: false, msg: 'No tienes permisos para eliminar productos'})
 
-    deleteProducts(){
-        
+        const { id } = req.params
+
+        const query = 'DELETE FROM productos WHERE id = $1'
+
+        const values = [id]
+
+        db.query(query, values)
+
+        res.json({
+            success: true,
+            msg: 'Producto eliminado'
+        })
+
     }
 }
 

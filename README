@@ -1,0 +1,63 @@
+Proyecto de Gestión de Usuarios, Productos y Compras
+
+Descripción
+Este proyecto es una aplicación que gestiona usuarios, productos y compras utilizando Node.js y PostgreSQL. 
+Incluye la creación de tablas para usuarios, productos y compras, así como la configuración de roles para los usuarios.
+
+
+Configuración de la Base de Datos
+
+Instalar PostgreSQL
+
+Crear la Base de Datos
+
+Crea una base de datos para tu proyecto. Puedes hacer esto utilizando la consola de PostgreSQL o una herramienta GUI como pgAdmin.
+
+CREATE DATABASE nombre_de_tu_base_de_datos;
+
+Cree las tablas necesarias para el proyecto. Aquí hay un ejemplo de cómo deberían verse las tablas y sus relaciones:
+
+-- Tabla de usuarios
+CREATE TABLE usuarios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    role VARCHAR(50) CHECK (rol IN ('admin', 'cliente')) NOT NULL
+    telefono VARCHAR(100),
+);
+
+-- Tabla de productos
+CREATE TABLE productos (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    precio DECIMAL(10, 2) NOT NULL,
+    disponibles INT NOT NULL
+    lote INT NOT NULL
+);
+
+-- Tabla de compras
+CREATE TABLE compras (
+    id SERIAL PRIMARY KEY,
+    usuario_id INT REFERENCES usuarios(id),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    descripcion
+    total
+    
+);
+
+-- Tabla de órdenes
+CREATE TABLE ordenes (
+    id SERIAL PRIMARY KEY,
+    compra_id INT REFERENCES compras(id),
+    producto_id INT REFERENCES productos(id),
+    cantidad INT NOT NULL,
+    total DECIMAL(10, 2) NOT NULL
+    valorunitario DECIMAL(10, 2) NOT NULL
+);
+
+
+Nota: Todos los usuarios en un inicio tienen role de cliente, la idea es desde pgAdmin cambiar el role mientras se sistematiza esa funcionalidad, y de esta forma los endpoints que requieres el role de admin van a poder ejecutarse.
+
+
