@@ -26,10 +26,10 @@ class User {
         }
     }
 
-   async updateUser() {
+   async updateUser(id) {
         try {
-            const text = 'UPDATE users SET name=$1, email=$2, phone_number=$3 WHERE id=$4 RETURNING *';
-            const values = [this.name, this.email, this.phone_number, this.id];
+            const text = 'UPDATE usuarios SET nombre=$1, email=$2, telefono=$3 WHERE id=$4 RETURNING *';
+            const values = [this.nombre, this.email, this.telefono, id];
 
             const { rows } = await db.query(text, values);
 

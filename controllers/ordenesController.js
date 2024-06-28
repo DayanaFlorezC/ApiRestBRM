@@ -1,21 +1,19 @@
 const db = require('../config/database')
-//const Orden = require('../models/compra')
+const Orden = require('../models/orden')
 
 const ordenesController = {
 
     async createOrden(req, res) {
 
-        const { description, total, productos, user } = req.body
+        const { producto, compra, cantidad, valorunitario, total } = req.body
 
         const infoOrden = {
-            description,
             total,
-            productos,
-            user,
-            fecha: new Date()
+            valorunitario,
+            cantidad,
+            producto,
+            compra
         }
-
-        console.log(infoOrden, 'infoOrden')
 
         const newOrden = new Orden(infoOrden)
 
@@ -27,16 +25,23 @@ const ordenesController = {
     async getOrdenesByCompra (req, res) {
         const id = req.params.compraId;
 
-        const { rows } = await db.query('SELECT * FROM ordenes WHERE id = $1', [id])
+        const { rows } = await db.query('SELECT * FROM ordenes WHERE compra_id = $1', [id])
 
-        const orden = rows[0]
+        const ordenes = []
 
-        if (!orden) return res.json({ success: false, msg: 'No se encontro esta orden' })
+        for (const orden of rows) {
+            const { rows } = await db.query('SELECT * FROM productos WHERE id = $1', [orden.producto_id])
+            orden.infoProducto = rows[0] 
+            ordenes.push(orden)
+            
+        }
+
+        if (!ordenes) return res.json({ success: false, msg: 'No se encontro esta orden' })
 
         return res.json({
             success: true,
             msg: 'ok',
-            orden: orden
+            ordenes: ordenes
         })
     },
 

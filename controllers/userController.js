@@ -16,9 +16,7 @@ const userController = {
         try {
             const newUser = new User(userInfo);
             const user = await newUser.save();
-    
-            console.log('Usuario creado:', user);
-    
+        
             res.json({ success: true, msg: 'Usuario creado con éxito' });
         } catch (error) {
             console.error('Error al crear usuario:', error);
@@ -60,8 +58,6 @@ const userController = {
 
         const { rows } = await db.query('SELECT * FROM usuarios WHERE id = $1', [id])
 
-        console.log(rows, 'ks')
-
         const user = rows
 
         delete user.password
@@ -77,8 +73,6 @@ const userController = {
     async getAllUsers(req, res){
 
         const {rows} = await db.query('SELECT * FROM usuarios')
-
-        console.log(rows)
 
         const users = rows
 
@@ -96,22 +90,29 @@ const userController = {
 
     },
 
-    updateUser(req, res){
+    async updateUser(req, res){
 
         const {id} = req.params
-        const {name, email, phone} = req.body
 
-        const { rows } = db.query('SELECT * FROM usuarios WHERE id = $1', [id])
+        const {nombre, email, phone} = req.body
 
-        const exist = rows[0]
+        const { rows } = await db.query('SELECT * FROM usuarios WHERE id = $1', [id])
+
+        const exist = rows?.[0]
 
         if(!exist){
             return res.json({success: false, msg: 'Usuario no encontrado'})
         }
 
-        const userUpdated = new User({id, name, email, phone})
+        const userinfo = {
+            nombre: nombre || exist.nombre,
+            email: email || exist.email,
+            phone: phone || exist.telefono
+        }
 
-        const user = userUpdated.updateUser()
+        const userUpdated = new User(userinfo)
+
+        const user = await userUpdated.updateUser(id)
 
         res.json({success: true, user, msg: 'Usuario actualizado con exito'})
         

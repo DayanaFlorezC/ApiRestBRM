@@ -77,8 +77,6 @@ const productController = {
 
         const { id } = req.params
 
-        console.log(id, 'aks')
-
         const { nombre, precio, disponibles, lote } = req.body
 
         const product = new Product({ nombre, precio, disponibles, lote })

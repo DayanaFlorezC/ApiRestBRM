@@ -5,17 +5,14 @@ const comprasController = {
 
     async createCompra(req, res) {
 
-        const { description, total, productos, user } = req.body
+        const { description, total, user } = req.body
 
         const infoCompra = {
             description,
             total,
-            productos,
             user,
             fecha: new Date()
         }
-
-        console.log(infoCompra, 'infoCompra')
 
         const newCompra = new Compra(infoCompra)
 
@@ -31,6 +28,11 @@ const comprasController = {
         const { rows } = await db.query('SELECT * FROM compras WHERE id = $1', [id])
 
         const compra = rows[0]
+
+        //get the orders of this purchase
+        const { rows: ordenes } = await db.query('SELECT * FROM ordenes WHERE compra_id = $1', [compra.id])
+
+        compra.ordenes = ordenes
 
         if (!compra) return res.json({ success: false, msg: 'No se encontro esta compra' })
 
@@ -76,7 +78,6 @@ const comprasController = {
 
         const { userId } = req.params
 
-        console.log(userId, 'userId')
         const { rows } = await db.query('SELECT * FROM compras WHERE user_id = $1', [userId])
 
         res.json({

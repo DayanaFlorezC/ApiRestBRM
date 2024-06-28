@@ -10,12 +10,9 @@ class Product {
     }
 
     async save(){
-        console.log('sdsd')
         try {
             const text = 'INSERT INTO productos(nombre, precio, disponibles, lote, fecha) VALUES($1, $2, $3, $4, $5) RETURNING *';
             const values = [this.nombre, this.precio, this.disponibles, this.lote, this.fecha];
-
-            console.log(values, 'ksk')
 
             const { rows } = await db.query(text, values);
 
@@ -32,11 +29,7 @@ class Product {
             const text = 'UPDATE productos SET nombre=$1, precio=$2, disponibles=$3, lote=$4 WHERE id=$5 RETURNING *';
             const values = [this.nombre, this.precio, this.disponibles, this.lote, id];
 
-            console.log(values, 'ksk')
-
             const { rows } = await db.query(text, values);
-
-            console.log(rows, 'kaks')
 
             return rows[0];
         } catch (error) {
