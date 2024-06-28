@@ -4,7 +4,7 @@ const mysql = require('mysql')
 const userRoutes = require('./routes/userRoutes')
 const productRoutes = require('./routes/productRoutes')
 const comprasRouter = require('./routes/comprasRoutes')
-//const db= require('./config/database')
+const db= require('./config/database')
 
 
 const app = express()
